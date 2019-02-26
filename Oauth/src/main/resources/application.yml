@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: service-auth
+
+  redis:
+    host: 192.168.1.250
+    database: 1
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/bgcz?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8
+    username: admin
+    password: admin
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+server:
+  port: 9098
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+#logging.level.org.springframework.security: DEBUG
+
