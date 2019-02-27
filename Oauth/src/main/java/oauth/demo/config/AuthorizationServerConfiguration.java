@@ -16,12 +16,13 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 import javax.sql.DataSource;
-import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
 
 @Configuration
 @EnableAuthorizationServer
@@ -46,13 +47,29 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Autowired
     private ClientDetailsService clientDetailsService;
 
+    /**
+     * 对称
+     */
+    @Bean
+    public JwtAccessTokenConverter accessTokenConverter() {
+        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+        converter.setSigningKey("123");
+        converter.setAccessTokenConverter(new CustomerAccessTokenConverter());
+        return converter;
+    }
+
+    //    @Bean
+//    public TokenStore tokenStore() {
+//        return new JdbcTokenStore(dataSource);
+//    }
     @Bean
     public TokenStore tokenStore() {
-        return new JdbcTokenStore(dataSource);
+        return new JwtTokenStore(accessTokenConverter());
     }
 
     /**
      * 声明 ClientDetails实现
+     *
      * @return
      */
     @Bean
@@ -88,18 +105,34 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 //                .authenticationManager(authenticationManager)
 //                .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST);
         // 存数据库
-        endpoints.tokenStore(tokenStore).authenticationManager(authenticationManager).
-                userDetailsService(userServiceDetail);
+//        endpoints.tokenStore(tokenStore).authenticationManager(authenticationManager).
+//                userDetailsService(userServiceDetail);
         // 配置tokenServices参数
-        DefaultTokenServices tokenServices = new DefaultTokenServices();
-        tokenServices.setTokenStore(endpoints.getTokenStore());
-        tokenServices.setSupportRefreshToken(false);
-        tokenServices.setClientDetailsService(endpoints.getClientDetailsService());
-        tokenServices.setTokenEnhancer(endpoints.getTokenEnhancer());
-        tokenServices.setAccessTokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30));
-        endpoints.tokenServices(tokenServices);
+//        DefaultTokenServices tokenServices = new DefaultTokenServices();
+//        tokenServices.setTokenStore(endpoints.getTokenStore());
+//        tokenServices.setSupportRefreshToken(false);
+//        tokenServices.setClientDetailsService(endpoints.getClientDetailsService());
+//        tokenServices.setTokenEnhancer(endpoints.getTokenEnhancer());
+//        tokenServices.setAccessTokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30));
+//        endpoints.tokenServices(tokenServices);
+
+        // 自定义token生成方式
+        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+        tokenEnhancerChain.setTokenEnhancers(Arrays.asList(new CustomerEnhancer(), accessTokenConverter()));
+        endpoints.tokenStore(tokenStore())
+                .accessTokenConverter(accessTokenConverter()).reuseRefreshTokens(false)
+                .authenticationManager(authenticationManager).tokenEnhancer(tokenEnhancerChain);
     }
 
+    //    @Bean
+//    @Primary
+//    public DefaultTokenServices tokenServices() {
+//        DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+//        defaultTokenServices.setTokenStore(tokenStore());
+//        defaultTokenServices.setSupportRefreshToken(true);
+//        defaultTokenServices.setReuseRefreshToken(true);
+//        return defaultTokenServices;
+//    }
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
         // 允许表单认证
