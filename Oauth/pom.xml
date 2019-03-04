@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>Oauth</groupId>
-    <artifactId>demo</artifactId>
+    <artifactId>Oauth</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>demo</name>
+    <name>oauth-server</name>
     <description>Demo project for Spring Boot</description>
 
     <dependencies>

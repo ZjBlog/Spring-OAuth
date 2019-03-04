@@ -1,53 +1,42 @@
 package serviceha.demo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.OAuth2ClientProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-import serviceha.demo.dto.UserDao;
-import serviceha.demo.dto.UserLoginParamDto;
-
-import javax.validation.Valid;
 
 @RequestMapping("/user")
 @RestController
 public class UserController {
-    @Autowired
-    private UserDao userRepository;
-
-    @Autowired
-    private OAuth2ClientProperties oAuth2ClientProperties;
-
+//    @Autowired
+//    private UserDao userRepository;
+//
+//    @Autowired
+//    private OAuth2ClientProperties oAuth2ClientProperties;
+//
 //    @Autowired
 //    private OAuth2ProtectedResourceDetails oAuth2ProtectedResourceDetails;
-
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
-    @RequestMapping("/login")
-    public ResponseEntity<OAuth2AccessToken> login(@Valid UserLoginParamDto loginDto, BindingResult bindingResult) throws Exception {
-
-        return null;
-//        if (bindingResult.hasErrors())
+//
+//    @Autowired
+//    private RestTemplate restTemplate;
+//
+//    @Bean
+//    public RestTemplate restTemplate() {
+//        return new RestTemplate();
+//    }
+//
+//    @RequestMapping("/login")
+//    public ResponseEntity<OAuth2AccessToken> login(@Valid UserLoginParamDto loginDto, BindingResult bindingResult) throws Exception {
+//
+//        if (bindingResult.hasErrors()){
 //            throw new Exception("登录信息错误，请确认后再试");
+//        }
 //
 //        User user = userRepository.findByUsername(loginDto.getUsername());
 //
-//        if (null == user)
-//            throw new Exception("用户为空，出错了");
+//        if (null == user){
+//            throw new Exception("用户为空，出错了");}
 //
 //        if (!BPwdEncoderUtil.matches(loginDto.getPassword(), user.getPassword().replace("{bcrypt}","")))
-//            throw new Exception("密码不正确");
+//        {throw new Exception("密码不正确");}
 //
 //        String client_secret = oAuth2ClientProperties.getClientId()+":"+oAuth2ClientProperties.getClientSecret();
 //
@@ -66,6 +55,6 @@ public class UserController {
 //        HttpEntity httpEntity = new HttpEntity(map,httpHeaders);
 //        //获取 Token
 //        return restTemplate.exchange(oAuth2ProtectedResourceDetails.getAccessTokenUri(), HttpMethod.POST,httpEntity,OAuth2AccessToken.class);
-
-    }
+//
+//    }
 }

@@ -1,10 +1,12 @@
 package oauth.demo.entity;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -49,7 +51,11 @@ public class User implements UserDetails, Serializable {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        List<GrantedAuthority> list=new ArrayList<>();
+        for (Role authority : authorities) {
+            list.add(new SimpleGrantedAuthority(authority.getAuthority()));
+        }
+        return list;
     }
 
     @Override

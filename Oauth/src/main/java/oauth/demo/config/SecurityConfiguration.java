@@ -1,29 +1,21 @@
 package oauth.demo.config;
 
+import oauth.demo.dto.UserServiceDetail;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-//    @Bean
-//    @Override
-//    protected UserDetailsService userDetailsService() {
-//        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-//
-//        String finalPassword = "{bcrypt}"+bCryptPasswordEncoder.encode("123456");
-//        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-//        manager.createUser(User.withUsername("user_1").password(finalPassword).authorities("USER").build());
-//        manager.createUser(User.withUsername("user_2").password(finalPassword).authorities("USER").build());
-//
-//        return manager;
-//    }
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -39,18 +31,38 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-//        http.requestMatchers().anyRequest()
-//                .and()
-//                .authorizeRequests()
-//                .antMatchers("/oauth/**").permitAll();
-                 http.formLogin().permitAll()
-                // 登出页
-                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/")
-                // 其余所有请求全部需要鉴权认证
-               .and().authorizeRequests().anyRequest().authenticated()
-                // 由于使用的是JWT，我们这里不需要csrf
-                .and().csrf().disable();
+        http.requestMatchers().anyRequest()
+                .and()
+                .authorizeRequests()
+                .antMatchers("/oauth/**").permitAll();
+//                 http.formLogin().permitAll()
+//                // 登出页
+//                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/")
+//                // 其余所有请求全部需要鉴权认证
+//               .and().authorizeRequests().anyRequest().authenticated()
+//                // 由于使用的是JWT，我们这里不需要csrf
+//                .and().csrf().disable();
 
 
+    }
+    // 注入自定义的用户获取
+    @Bean
+    UserDetailsService customUserService() {
+        return new UserServiceDetail();
+    }
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(daoAuthenticationProvider());
+    }
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider(){
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        // 设置userDetailsService
+        provider.setUserDetailsService(customUserService());
+        // 禁止隐藏用户未找到异常
+        provider.setHideUserNotFoundExceptions(false);
+        // 使用BCrypt进行密码的hash
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 }

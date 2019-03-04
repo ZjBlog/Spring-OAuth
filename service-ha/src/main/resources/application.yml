@@ -3,7 +3,7 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka/
 server:
-  port: 8765
+  port: 8766
 spring:
   application:
     name: service-hi
@@ -22,12 +22,11 @@ security:
     resource:
       jwt:
         key-uri: http://localhost:9098/oauth/token_key
-      user-info-uri: http://localhost:9098/users/current
     client:
       id: client_2
       client-secret: 123456
       access-token-uri: http://localhost:9098/oauth/token
-      grant-type: client_credentials,password
+      grant-type: password
       scope: server
       user-authorization-uri: http://localhost:9098/oauth/authorize
 
