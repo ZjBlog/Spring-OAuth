@@ -23,7 +23,7 @@ security:
       jwt:
         key-uri: http://localhost:9098/oauth/token_key
     client:
-      id: client_2
+      client-id: client_2
       client-secret: 123456
       access-token-uri: http://localhost:9098/oauth/token
       grant-type: password
