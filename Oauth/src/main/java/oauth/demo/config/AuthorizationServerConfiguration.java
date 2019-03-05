@@ -1,9 +1,9 @@
 package oauth.demo.config;
 
-import oauth.demo.dto.UserServiceDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,7 +13,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
@@ -25,21 +24,13 @@ import java.util.Arrays;
 @EnableAuthorizationServer
 public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
     @Autowired
+    @Qualifier("authenticationManagerBean")
     AuthenticationManager authenticationManager;
 
-//    @Autowired
-//    private DataSource dataSource;
 
-    @Autowired
-    private TokenStore tokenStore;
-
-    @Autowired
-    private UserServiceDetail userServiceDetail;
 
     static final Logger logger = LoggerFactory.getLogger(AuthorizationServerConfiguration.class);
 
-    @Autowired
-    private ClientDetailsService clientDetailsService;
 
     @Autowired
     private  CustomerAccessTokenConverter customerAccessTokenConverter;
@@ -59,15 +50,6 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         return new JwtTokenStore(jwtAccessTokenConverter());
     }
 
-    /**
-     * 声明 ClientDetails实现
-     *
-     * @return
-     */
-/*    @Bean
-    public ClientDetailsService clientDetailsService() {
-        return new JdbcClientDetailsService(dataSource);
-    }*/
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
