@@ -72,6 +72,7 @@ public class UserController {
         map.put("grant_type", Collections.singletonList(oAuth2ProtectedResourceDetails.getGrantType()));
 
         map.put("scope", oAuth2ProtectedResourceDetails.getScope());
+        map.put("type",Collections.singletonList("test"));
         //HttpEntity
         HttpEntity httpEntity = new HttpEntity(map,httpHeaders);
         //获取 Token

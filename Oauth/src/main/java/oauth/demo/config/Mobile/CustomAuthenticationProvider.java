@@ -1,0 +1,89 @@
+package oauth.demo.config.Mobile;
+
+import oauth.demo.dto.SmsCodeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.StringUtils;
+
+public class CustomAuthenticationProvider implements AuthenticationProvider {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
+    private UserDetailsService userDetailsService;
+
+
+    private SmsCodeService smsCodeService;
+
+    private boolean hideUserNotFoundExceptions = true;
+
+    @Override
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        CustomAuthenticationToken smsCodeAuthenticationToken = (CustomAuthenticationToken)authentication;
+        String username = smsCodeAuthenticationToken.getName();
+        try{
+            if(!StringUtils.hasText(username)) {
+                logger.error("SmsCodeAuthenticationProvider.authenticate, phoneNumber=null");
+                throw new UsernameNotFoundException("SmsCodeAuthenticationProvider.authenticate, phoneNumber is null");
+            }
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            additionalAuthenticationChecks(userDetails, smsCodeAuthenticationToken);
+            authentication = new CustomAuthenticationToken(userDetails, smsCodeAuthenticationToken.getCredentials(), userDetails.getAuthorities());
+            smsCodeAuthenticationToken.setDetails(userDetails);
+            return authentication;
+        } catch(UsernameNotFoundException e0) {
+            this.logger.debug("User '" + smsCodeAuthenticationToken.getPrincipal() + "' not found");
+            if (this.hideUserNotFoundExceptions) {
+                throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+            }
+            throw e0;
+        } catch (Exception e) {
+            throw new InternalAuthenticationServiceException(e.getMessage(), e);
+        }
+    }
+
+    private void additionalAuthenticationChecks(UserDetails userDetails, CustomAuthenticationToken authentication) throws AuthenticationException {
+        if (authentication.getCredentials() == null) {
+            this.logger.debug("Authentication failed: no credentials provided");
+            throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+        } else {
+            if (!this.smsCodeService.check(authentication.getName(), authentication.getCredentials())) {
+                this.logger.debug("Authentication failed: password does not match stored value");
+                throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+            }
+        }
+    }
+
+    @Override
+    public boolean supports(Class<?> authentication) {
+        return CustomAuthenticationToken.class.isAssignableFrom(authentication);
+    }
+
+    public UserDetailsService getUserDetailsService() {
+        return userDetailsService;
+    }
+
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+    public SmsCodeService getSmsCodeService() {
+        return smsCodeService;
+    }
+
+    public void setSmsCodeService(SmsCodeService smsCodeService) {
+        this.smsCodeService = smsCodeService;
+    }
+}

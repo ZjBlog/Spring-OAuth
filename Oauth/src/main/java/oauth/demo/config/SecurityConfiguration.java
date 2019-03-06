@@ -1,6 +1,9 @@
 package oauth.demo.config;
 
+import oauth.demo.config.Mobile.CustomAuthenticationProvider;
+import oauth.demo.dto.SmsCodeService;
 import oauth.demo.dto.UserServiceDetail;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private SmsCodeService smsCodeService;
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -53,6 +59,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(daoAuthenticationProvider());
+        auth.authenticationProvider(customAuthenticationProvider());
     }
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(){
@@ -63,6 +70,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         provider.setHideUserNotFoundExceptions(false);
         // 使用BCrypt进行密码的hash
         provider.setPasswordEncoder(passwordEncoder());
+
         return provider;
     }
+    @Bean
+    public CustomAuthenticationProvider customAuthenticationProvider(){
+        CustomAuthenticationProvider customAuthenticationProvider=new CustomAuthenticationProvider();
+        customAuthenticationProvider.setUserDetailsService(customUserService());
+        customAuthenticationProvider.setSmsCodeService(smsCodeService);
+        return customAuthenticationProvider;
+    };
 }

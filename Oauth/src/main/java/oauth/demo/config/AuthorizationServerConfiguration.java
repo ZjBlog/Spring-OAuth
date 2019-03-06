@@ -1,11 +1,13 @@
 package oauth.demo.config;
 
+import oauth.demo.config.Mobile.CustomTokenGranter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -13,12 +15,23 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.CompositeTokenGranter;
+import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.TokenGranter;
+import org.springframework.security.oauth2.provider.client.ClientCredentialsTokenGranter;
+import org.springframework.security.oauth2.provider.implicit.ImplicitTokenGranter;
+import org.springframework.security.oauth2.provider.password.ResourceOwnerPasswordTokenGranter;
+import org.springframework.security.oauth2.provider.refresh.RefreshTokenGranter;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableAuthorizationServer
@@ -63,7 +76,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 .authorities("oauth2")
                 .secret(finalSecret)
                 .and().withClient("client_2")
-                .authorizedGrantTypes("password", "refresh_token")
+                .authorizedGrantTypes("password", "refresh_token","mobile").autoApprove(true)
                 .scopes("server")
                 .authorities("oauth2")
                 .secret(finalSecret);
@@ -78,18 +91,58 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
      */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-        tokenEnhancerChain.setTokenEnhancers(Arrays.asList(jwtAccessTokenConverter()));
-        endpoints.tokenStore(tokenStore())
-                .tokenEnhancer(tokenEnhancerChain)
-                .authenticationManager(authenticationManager);
-
+        /**
+         *         TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+         *         tokenEnhancerChain.setTokenEnhancers(Arrays.asList(jwtAccessTokenConverter()));
+         *         endpoints.tokenStore(tokenStore())
+         *                 .tokenEnhancer(tokenEnhancerChain).tokenServices(defaultTokenServices())
+         *                 .authenticationManager(authenticationManager).tokenGranter(tokenGranter(endpoints));
+         */
+        endpoints.tokenServices(defaultTokenServices()).
+                authenticationManager(authenticationManager)
+                .tokenGranter(tokenGranter(endpoints));
     }
-
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
         // 允许表单认证
         security.allowFormAuthenticationForClients().tokenKeyAccess("permitAll()")
                 .checkTokenAccess("isAuthenticated()");
+    }
+
+    @Bean
+    @Primary
+    public DefaultTokenServices defaultTokenServices() {
+        DefaultTokenServices services = new DefaultTokenServices();
+        services.setTokenStore(tokenStore());
+        services.setTokenEnhancer(jwtAccessTokenConverter());
+        //可以支持之歌
+        services.setSupportRefreshToken(true);
+        return services;
+    }
+
+    private TokenGranter tokenGranter(AuthorizationServerEndpointsConfigurer config) {
+
+        ClientDetailsService clientDetailsService = config.getClientDetailsService();
+        AuthorizationServerTokenServices tokenServices = config.getTokenServices();
+        OAuth2RequestFactory requestFactory = config.getOAuth2RequestFactory();
+
+        List<TokenGranter> granters = new ArrayList<TokenGranter>(
+                Arrays.asList(config.getTokenGranter()));
+
+        granters.add(new ResourceOwnerPasswordTokenGranter(authenticationManager,
+                tokenServices,
+                clientDetailsService, requestFactory));
+
+        granters.add(new RefreshTokenGranter(tokenServices,
+                clientDetailsService,
+                requestFactory));
+
+        granters.add(new ImplicitTokenGranter(tokenServices, clientDetailsService, requestFactory));
+
+        granters.add(new ClientCredentialsTokenGranter(tokenServices, clientDetailsService, requestFactory));
+
+        granters.add(new CustomTokenGranter(authenticationManager, tokenServices, clientDetailsService, requestFactory));
+
+        return new CompositeTokenGranter(granters);
     }
 }
