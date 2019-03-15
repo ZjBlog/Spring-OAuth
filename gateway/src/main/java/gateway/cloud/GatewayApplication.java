@@ -9,7 +9,7 @@ import org.springframework.cloud.security.oauth2.gateway.TokenRelayGatewayFilter
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-public class CloudApplication {
+public class GatewayApplication {
 
     @Autowired
     private TokenRelayGatewayFilterFactory filterFactory;
@@ -23,7 +23,7 @@ public class CloudApplication {
                 .build();
     }
     public static void main(String[] args) {
-        SpringApplication.run(CloudApplication.class, args);
+        SpringApplication.run(GatewayApplication.class, args);
     }
 
 }

@@ -37,10 +37,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.requestMatchers().anyRequest()
-                .and()
-                .authorizeRequests()
-                .antMatchers("/oauth/**").permitAll();
+        http.httpBasic().and().authorizeRequests()
+                .antMatchers("/oauth/**","/login")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+                .and().csrf().disable();
+
+//        http.csrf().disable().requestMatchers().anyRequest()
+//                .and()
+//                .authorizeRequests()
+//                .antMatchers("/oauth/**").permitAll();
 //                 http.formLogin().permitAll()
 //                // 登出页
 //                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/")

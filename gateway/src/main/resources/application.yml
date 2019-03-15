@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: spring-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          # 小写
+          lower-case-service-id: true
+          # 通过 serviceId 转发到具体的服务实例
+          enabled: true
+#      routes:
+#        - id: neo_route
+#          uri: https://www.baidu.com
+#          predicates:
+#          - Path=/spring-cloud
+#        - id: cookie_route
+#          uri: http://ityouknow.com
+#          predicates:
+#          - Cookie=ityouknow, kee.e
+#        - id: header_route
+#          uri: http://ityouknow.com
+#          predicates:
+#          - Header=X-Request-Id,
+logging:
+  level:
+    org.springframework.cloud.gateway: debug
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+security:
+  oauth2:
+    client:
+      client-id: client_2
+      client-secret: 123456
+      access-token-uri: http://localhost:9098/oauth/token
+      grant-type: password
+      scope: server
+      user-authorization-uri: http://localhost:9098/oauth/authorize
+server:
+  port: 4088

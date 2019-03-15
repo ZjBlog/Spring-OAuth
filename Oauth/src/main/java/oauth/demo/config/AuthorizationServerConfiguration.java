@@ -1,6 +1,7 @@
 package oauth.demo.config;
 
 import oauth.demo.config.Mobile.CustomTokenGranter;
+import oauth.demo.dto.UserServiceDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -41,6 +43,8 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     AuthenticationManager authenticationManager;
 
 
+    @Autowired
+    private UserServiceDetail userServiceDetail;
 
     static final Logger logger = LoggerFactory.getLogger(AuthorizationServerConfiguration.class);
 
@@ -76,9 +80,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 .authorities("oauth2")
                 .secret(finalSecret)
                 .and().withClient("client_2")
-                .authorizedGrantTypes("password", "refresh_token","mobile").autoApprove(true)
-                .scopes("server")
-                .authorities("oauth2")
+                .authorizedGrantTypes("password", "refresh_token","mobile","authorization_code","implicit")
+                .scopes("server").accessTokenValiditySeconds(3600).refreshTokenValiditySeconds(3600*30)
+                .authorities("oauth2").redirectUris("https://www.bangechengzi.com/")
                 .secret(finalSecret);
        // clients.withClientDetails(clientDetailsService);
     }
@@ -100,13 +104,13 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
          */
         endpoints.tokenServices(defaultTokenServices()).
                 authenticationManager(authenticationManager)
-                .tokenGranter(tokenGranter(endpoints));
+                .tokenGranter(tokenGranter(endpoints)).userDetailsService(userServiceDetail).allowedTokenEndpointRequestMethods(HttpMethod.POST,HttpMethod.GET);
     }
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-        // 允许表单认证
+        // 允许表单认证TokenEndpointTokenEndpoint
         security.allowFormAuthenticationForClients().tokenKeyAccess("permitAll()")
-                .checkTokenAccess("isAuthenticated()");
+                .checkTokenAccess("permitAll()");
     }
 
     @Bean
