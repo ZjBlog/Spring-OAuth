@@ -1,7 +1,8 @@
 spring:
   application:
     name: service-auth
-
+  thymeleaf:
+    cache: false
   redis:
     host: 192.168.1.250
     database: 1
