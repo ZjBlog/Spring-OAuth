@@ -37,7 +37,8 @@
             <form id='confirmationForm' name='confirmationForm' action="/oauth/authorize" method='post'>
                 <input name='user_oauth_approval' value='true' type='hidden'/>
                 <!--写好授权访问领域-->
-                <input th:name="${s}" value="true" type="hidden" th:each="s : ${scopeList}"/>
+                scope.server: <input type="radio" name="scope.server" value="true">Approve</input>
+                              <input type="radio" name="scope.server" value="false" checked>Deny</input>
                 <input class="ui-btn-primary ui-btn-lg ui-btn-primary" name='authorize' value='授权' type='submit'/>
             </form>
         </div>

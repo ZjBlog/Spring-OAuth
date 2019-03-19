@@ -105,7 +105,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         endpoints.tokenServices(defaultTokenServices()).
                 authenticationManager(authenticationManager)
                 .tokenGranter(tokenGranter(endpoints)).userDetailsService(userServiceDetail).allowedTokenEndpointRequestMethods(HttpMethod.POST,HttpMethod.GET);
-       // endpoints.pathMapping("/oauth/confirm_access","/custom/confirm_access");
+        endpoints.pathMapping("/oauth/confirm_access","/custom/confirm_access");
     }
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {

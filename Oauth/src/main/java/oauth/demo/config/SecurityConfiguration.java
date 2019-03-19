@@ -37,13 +37,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.httpBasic().and().authorizeRequests()
-                .antMatchers("/oauth/**")
-                .permitAll()
-                .anyRequest()AuthorizationEndpoint
-                .authenticated()
+
+//        http.authorizeRequests().antMatchers("/auth/login").permitAll()
+//                .anyRequest().authenticated().and()
+//                .formLogin().loginPage("/auth/login")
+//                .loginProcessingUrl("/auth/form").permitAll();
+//        http.csrf().disable();
+
+//
+//        http.httpBasic().and().authorizeRequests()
+//                .antMatchers("/oauth/**")
+//                .permitAll()
+//                .anyRequest()
+//                .authenticated()
 //                .and().formLogin().loginPage("/auth/login").permitAll()
-                .and().csrf().disable();
+//                .and().csrf().disable();
 //        http.csrf().disable().requestMatchers().anyRequest()
 //                .and()
 //                .authorizeRequests()
@@ -56,6 +64,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //                // 由于使用的是JWT，我们这里不需要csrf
 //                .and().csrf().disable();
 
+
+        http.csrf().disable()
+                // 必须配置，不然OAuth2的http配置不生效----不明觉厉
+                .requestMatchers()
+                .antMatchers("/auth/login","/auth/form", "/oauth/authorize")
+                .and()
+                .authorizeRequests()
+                // 自定义页面或处理url是，如果不配置全局允许，浏览器会提示服务器将页面转发多次
+                .antMatchers("/auth/login", "/auth/form","/oauth/authorize")
+                .permitAll()
+                .anyRequest()
+                .authenticated();
+
+        // 表单登录
+        http.formLogin()
+                // 登录页面
+                .loginPage("/auth/login")
+                // 登录处理url
+                .loginProcessingUrl("/auth/form");
 
     }
     // 注入自定义的用户获取
