@@ -6,7 +6,7 @@
         <groupId>Spring</groupId>
         <artifactId>oauth</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from repository -->
+	<!--<relativePath/>-->
     </parent>
     <groupId>Server</groupId>
     <artifactId>server</artifactId>
@@ -20,4 +20,12 @@
             <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
