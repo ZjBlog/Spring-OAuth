@@ -6,11 +6,11 @@
         <groupId>Spring</groupId>
         <artifactId>oauth</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>service-ha</groupId>
     <artifactId>service-ha</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>ha</name>
     <description>Demo project for Spring Boot</description>
 
@@ -49,6 +49,26 @@
     </dependencies>
     <build>
         <plugins>
+            <!--<plugin>-->
+            <!--<artifactId>maven-assembly-plugin</artifactId>-->
+            <!--<configuration>-->
+            <!--&lt;!&ndash;<archive>&ndash;&gt;-->
+            <!--&lt;!&ndash;<manifest>&ndash;&gt;-->
+            <!--&lt;!&ndash;<mainClass>cheers.server.DiscoverServiceApplication</mainClass>&ndash;&gt;-->
+            <!--&lt;!&ndash;</manifest>&ndash;&gt;-->
+            <!--&lt;!&ndash;</archive>&ndash;&gt;-->
+            <!--&lt;!&ndash;<descriptorRefs>&ndash;&gt;-->
+            <!--&lt;!&ndash;<descriptorRef>jar-with-dependencies</descriptorRef>&ndash;&gt;-->
+            <!--&lt;!&ndash;</descriptorRefs>&ndash;&gt;-->
+            <!--</configuration>-->
+            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
