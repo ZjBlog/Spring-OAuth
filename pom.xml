@@ -21,6 +21,7 @@
     </properties>
 
     <modules>
+        <module>admin</module>
         <module>common</module>
         <module>gateway</module>
         <module>service-ha</module>

@@ -26,4 +26,11 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 
 logging.level.org.springframework.security: debug
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS

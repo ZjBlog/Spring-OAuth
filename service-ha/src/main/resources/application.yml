@@ -29,5 +29,11 @@ security:
       grant-type: password
       scope: server
       user-authorization-uri: http://localhost:9098/oauth/authorize
-
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
