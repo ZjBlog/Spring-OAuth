@@ -37,3 +37,7 @@ management:
   endpoint:
     health:
       show-details: ALWAYS
+#ribbon:
+#  eager-load:
+#    enabled：true
+#    clients：kong-auth,kong-uc-service

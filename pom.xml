@@ -21,6 +21,7 @@
     </properties>
 
     <modules>
+        <module>sleuth</module>
         <module>admin</module>
         <module>common</module>
         <module>gateway</module>

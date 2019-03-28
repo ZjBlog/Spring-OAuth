@@ -28,3 +28,6 @@ mvn clean -U package -pl gateway --am
           args:
             retries: 3
             statuses: BAD_GATEWAY,INTERNAL_SERVER_ERROR
+https://www.fangzhipeng.com/springcloud/2019/02/05/sc-sleuth-g.html
+sleuth server端使用docker
+
