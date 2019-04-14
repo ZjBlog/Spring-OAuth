@@ -1,0 +1,27 @@
+version: '3.1'
+services:
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: "%"
+      #创建数据库
+      MYSQL_DATABASE: "bgcz"
+      #amdin是bgcz库的管理者
+      MYSQL_USER: "admin"
+      MYSQL_PASSWORD: "admin"
+      TZ: "Asia/Shanghai"
+      #密码验证插件  timestamp 默认值 如果是not null 表名区分大小写 server接受的数据包的大小
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+      --max_allowed_packet=128M
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql
+      - ./initsql:/docker-entrypoint-initdb.d/
