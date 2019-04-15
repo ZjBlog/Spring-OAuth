@@ -1,21 +1,61 @@
+tpd:
+  peer1Port: 8761
+  peer2Port: 8762
+
+#management:
+#  endpoint:
+#    health:
+#      enabled: true
+#      show-details: always
+#    shutdown:
+#      enabled: true
+#  endpoints:
+#    web:
+#      base-path: /
+#      exposure:
+#        include: '*'
+---
 spring:
+  profiles: peer2
   application:
-    name: eureka-server
-server:
-  port: 8761
+    name: eureka-cluster
 eureka:
   instance:
-    hostname: localhost
+    hostname: eureka-peer1
+    #prefer-ip-address: true为不使用主机名来定义注册中心的地址，
+    #而使用IP地址的形式，而defaultZone中是以域名的方式向注册中心注册的
+    #（测试了下使用IP注册到备份节点不可识别），最终导致分片节点不能识别匹配（IP地址与域名），而认为分片均处于不可达状态
+    prefer-ip-address: false
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
   client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    fetch-registry: false
-    register-with-eureka: false
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    health:
-      show-details: ALWAYS
+    serviceUrl:
+      defaultZone: http://eureka-peer2:${tpd.peer2Port}/eureka
+    register-with-eureka: true
+    fetch-registry: true
+server:
+  port: ${tpd.peer1Port}
+---
+spring:
+  profiles: peer1
+  application:
+    name: eureka-cluster
+eureka:
+  instance:
+    hostname: eureka-peer2
+    prefer-ip-address: false
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-peer1:${tpd.peer1Port}/eureka
+    register-with-eureka: true
+    fetch-registry: true
+server:
+  port: ${tpd.peer2Port}
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#  endpoint:
+#    health:
+#      show-details: ALWAYS
