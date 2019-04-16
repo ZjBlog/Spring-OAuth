@@ -1,132 +1,62 @@
 version: '3'
 services:
-    discover-01: 
+    discover-01.cheerspublishing.com: 
       image: docker-repostory.cheerspublishing.com:5000/cheers/discover:latest
       container_name: discover-01
-      hostname: discover-01
+      hostname: discover-01.cheerspublishing.com
       ports: 
-        - "8761:8761"
+        - "8788:8761"
       extra_hosts:
         - "logstash-01.cheerspublishing.com:192.168.1.250"
       environment:
         - spring.profiles.active=discover-01
-      links:
-        - discover-02:discover-02.cheerspublishing.com
-    discover-02: 
+    discover-02.cheerspublishing.com: 
       image: docker-repostory.cheerspublishing.com:5000/cheers/discover:latest
       container_name: discover-02
-      ports: 
-        - "8762:8762"
       extra_hosts:
         - "logstash-01.cheerspublishing.com:192.168.1.250"
       environment:
         - spring.profiles.active=discover-02
-      links:
-        - discover-01:discover-01.cheerspublishing.com
-version: '2'
-services:
-    discover-01: 
-      image: docker-repostory.cheerspublishing.com:5000/cheers/discover:latest
-      ports: 
-        - "8761:8761"
-      extra_hosts:
-        - "discover-01.cheerspublishing.com:192.168.1.253"
-        - "discover-02.cheerspublishing.com:192.168.1.253"
-        - "logstash-01.cheerspublishing.com:192.168.1.250"
-      environment:
-        - spring.profiles.active=discover-01
-    discover-02: 
-      image: docker-repostory.cheerspublishing.com:5000/cheers/discover:latest
-      ports: 
-        - "8762:8762"
-      extra_hosts:
-        - "discover-01.cheerspublishing.com:192.168.1.253"
-        - "discover-02.cheerspublishing.com:192.168.1.253"
-        - "logstash-01.cheerspublishing.com:192.168.1.250"
-      environment:
-        - spring.profiles.active=discover-02
-    config: 
+    config:
       image: docker-repostory.cheerspublishing.com:5000/cheers/config:latest
-      ports: 
-        - "5088:5088"
+      container_name: config
       extra_hosts:
-        - "discover-01.cheerspublishing.com:192.168.1.253"
-        - "discover-02.cheerspublishing.com:192.168.1.253"
         - "logstash-01.cheerspublishing.com:192.168.1.250"
-        - "tm-01.cheerspublishing.com:192.168.1.253"
       environment:
         - spring.profiles.active=dev
-    gateway-01: 
+      depends_on:
+        - discover-01.cheerspublishing.com
+        - discover-02.cheerspublishing.com
+      restart: always
+    gateway: 
       image: docker-repostory.cheerspublishing.com:5000/cheers/gateway:latest
       ports: 
-        - "8090:8090"
+        - "8789:8090"
       extra_hosts:
-        - "discover-01.cheerspublishing.com:192.168.1.253"
-        - "discover-02.cheerspublishing.com:192.168.1.253"
         - "logstash-01.cheerspublishing.com:192.168.1.250"
-    share-01: 
-      image: docker-repostory.cheerspublishing.com:5000/cheers/share:latest
-      ports: 
-        - "8093:8093"
-      extra_hosts:
-        - "discover-01.cheerspublishing.com:192.168.1.253"
-        - "discover-02.cheerspublishing.com:192.168.1.253"
-        - "logstash-01.cheerspublishing.com:192.168.1.250"
-        - "tm-01.cheerspublishing.com:192.168.1.253"
-      environment:
-        - spring.profiles.active=dev
-    serial-01: 
-      image: docker-repostory.cheerspublishing.com:5000/cheers/serial:latest
-      ports: 
-        - "8092:8092"
-      extra_hosts:
-        - "discover-01.cheerspublishing.com:192.168.1.253"
-        - "discover-02.cheerspublishing.com:192.168.1.253"
-        - "logstash-01.cheerspublishing.com:192.168.1.250"
-        - "tm-01.cheerspublishing.com:192.168.1.253"
-      environment:
-        - spring.profiles.active=dev
-    user-service: 
-      image: docker-repostory.cheerspublishing.com:5000/cheers/user-service:latest
-      ports: 
-        - "8091:8091"
-      extra_hosts:
-        - "discover-01.cheerspublishing.com:192.168.1.253"
-        - "discover-02.cheerspublishing.com:192.168.1.253"
-        - "logstash-01.cheerspublishing.com:192.168.1.250"
-        - "tm-01.cheerspublishing.com:192.168.1.253"
-      environment:
-        - spring.profiles.active=dev
-    ebook: 
-      image: docker-repostory.cheerspublishing.com:5000/cheers/ebook:latest
-      ports: 
-        - "8094:8094"
-      extra_hosts:
-        - "discover-01.cheerspublishing.com:192.168.1.253"
-        - "discover-02.cheerspublishing.com:192.168.1.253"
-        - "logstash-01.cheerspublishing.com:192.168.1.250"
-        - "tm-01.cheerspublishing.com:192.168.1.253"
-      environment:
-        - spring.profiles.active=dev
-    tm: 
+      depends_on:
+        - discover-01.cheerspublishing.com
+        - discover-02.cheerspublishing.com
+      restart: always
+    tm-01.cheerspublishing.com: 
       image: docker-repostory.cheerspublishing.com:5000/cheers/tm:latest
-      ports: 
-        - "8070:8070"
-        - "7970:7970"
       extra_hosts:
-        - "discover-01.cheerspublishing.com:192.168.1.253"
-        - "discover-02.cheerspublishing.com:192.168.1.253"
         - "logstash-01.cheerspublishing.com:192.168.1.250"
       environment:
         - spring.profiles.active=dev
-    order: 
-      image: docker-repostory.cheerspublishing.com:5000/cheers/order:latest
-      ports: 
-        - "8095:8095"
+      depends_on:
+        - config
+      restart: always
+    share: 
+      image: docker-repostory.cheerspublishing.com:5000/cheers/share:latest
       extra_hosts:
-        - "discover-01.cheerspublishing.com:192.168.1.253"
-        - "discover-02.cheerspublishing.com:192.168.1.253"
         - "logstash-01.cheerspublishing.com:192.168.1.250"
-        - "tm-01.cheerspublishing.com:192.168.1.253"
       environment:
         - spring.profiles.active=dev
+      depends_on:
+        - config
+      restart: always
+
+
+
+

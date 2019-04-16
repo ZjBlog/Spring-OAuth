@@ -1,0 +1,1 @@
+docker-compose.yml默认使用桥接模式，每个service可以根据其他的Service名字进行通信
