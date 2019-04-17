@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,6 +13,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.*;
 import serviceha.demo.dto.UserService;
 import serviceha.demo.entity.User;
+import serviceha.demo.service.EurekaClientFeign;
 
 import java.security.Principal;
 
@@ -19,6 +21,12 @@ import java.security.Principal;
 public class TestEndPointController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EurekaClientFeign feign;
+
+    @Value("${test}")
+    private String name;
 
     Logger logger = LoggerFactory.getLogger(TestEndPointController.class);
     @RequestMapping(value = "/registry", method = RequestMethod.POST)
@@ -54,5 +62,10 @@ public class TestEndPointController {
     @RequestMapping("/hello")
     public String hello() {
         return "hello you";
+    }
+
+    @GetMapping("/test/1")
+    public String hi(){
+        return feign.sayHiFromClientEureka("9999") +"==="+name;
     }
 }

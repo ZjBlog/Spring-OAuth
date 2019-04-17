@@ -28,6 +28,17 @@ mvn clean -U package -pl gateway --am
           args:
             retries: 3
             statuses: BAD_GATEWAY,INTERNAL_SERVER_ERROR
+
 https://www.fangzhipeng.com/springcloud/2019/02/05/sc-sleuth-g.html
 sleuth server端使用docker
 
+docker run -d -p 9411:9411 openzipkin/zipkin
+docker run -d --hostname my-rabbit --name rabbit -p 15672:15672 -p 5672:5672 rabbitmq:3-management
+
+#zipkin连接mq
+docker run -d -p 9411:9411 -e RABBIT_ADDRESSES=192.168.1.253:5672 -e RABBIT_PASSWORD=guest -e RABBIT_USER=guest openzipkin/zipkin
+
+
+
+将链路数据存在在Elasticsearch中
+docker run -d -p 9411:9411 -e STORAGE_TYPE=elasticsearch -e RABBIT_ADDRESSES=192.168.1.253:5672 -e RABBIT_PASSWORD=guest -e RABBIT_USER=guest -e ES_HOSTS=192.168.1.250:9200 openzipkin/zipkin
