@@ -28,7 +28,30 @@ mvn clean -U package -pl gateway --am
           args:
             retries: 3
             statuses: BAD_GATEWAY,INTERNAL_SERVER_ERROR
-
+      - id: search
+        uri: lb://search-service
+        predicates:
+        - Path=/search/**
+        filters:
+        - StripPrefix=1
+        - name: Retry
+          args:
+            retries: 3
+            series:
+              - SERVER_ERROR
+              - CLIENT_ERROR
+            methods:
+              - GET
+              - POST
+            status:
+              - GATEWAY_TIMEOUT
+            exceptions:
+            - java.io.IOException
+            - java.util.concurrent.TimeoutException
+        - name: Hystrix
+          args:
+            name: fallbackcmd
+            fallbackUri: forward:/fallback
 https://www.fangzhipeng.com/springcloud/2019/02/05/sc-sleuth-g.html
 sleuth server端使用docker
 
